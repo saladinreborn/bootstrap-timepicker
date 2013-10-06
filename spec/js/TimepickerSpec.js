@@ -97,14 +97,26 @@ describe('Timepicker feature', function() {
   it('should have current time by default', function() {
     var dTime = new Date(),
       hour = dTime.getHours(),
-      minute = Math.floor(dTime.getMinutes() / tp1.minuteStep) * tp1.minuteStep;
+      minutes = dTime.getMinutes();
+
+    if (minutes !== 0) {
+      minutes = Math.ceil(minutes / tp1.minuteStep) * tp1.minuteStep;
+    }
+
+    if (minutes === 60) {
+      hour += 1;
+      minutes = 0;
+    }
 
     if (hour > 12) {
       hour = hour - 12;
     }
+    if (hour === 0) {
+      hour = 12;
+    }
 
     expect(tp1.hour).toBe(hour);
-    expect(tp1.minute).toBe(minute);
+    expect(tp1.minute).toBe(minutes);
   });
 
   it('should not override time with current time if value is already set', function() {
@@ -376,6 +388,18 @@ describe('Timepicker feature', function() {
     $('body').trigger('click');
     expect(hideEvents).toBe(1);
   });
+
+  it('should be able to reset time by using setTime 0/null', function() {
+    tp1.hour = 10;
+    tp1.minute = 30;
+    tp1.meridian = 'PM';
+    tp1.updateElement();
+
+    $input1.timepicker('setTime', null);
+    tp1.update();
+    expect(tp1.getTime()).toBe('');
+  });
+
 
   it('should not have the widget in the DOM if remove method is called', function() {
     expect($('body')).toContain('.bootstrap-timepicker-widget');
